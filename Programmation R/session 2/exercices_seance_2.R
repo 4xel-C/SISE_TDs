@@ -313,3 +313,25 @@ combinatoire <- function(chaine) {
   return(anagrammes)
 }
 
+# ------------------------------------ 14. Optimisation.
+optim_production <- function(n1, n2, n3) {
+  
+  # Vecteur de poutres
+  poutre <- 3
+  
+  # Nombre poutres.
+  n <- 1
+  
+  # placer les n3.
+  for (i in 1:n3) {
+    
+    # Variable pour trouver une palce à la poutre.
+    place <- FALSE
+    
+    if ()
+  }
+  
+  
+}
+
+
