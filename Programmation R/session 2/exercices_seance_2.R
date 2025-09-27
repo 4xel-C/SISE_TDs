@@ -317,21 +317,52 @@ combinatoire <- function(chaine) {
 optim_production <- function(n1, n2, n3) {
   
   # Vecteur de poutres
-  poutre <- 3
+  poutres <- c(3)
   
   # Nombre poutres.
   n <- 1
   
-  # placer les n3.
-  for (i in 1:n3) {
-    
-    # Variable pour trouver une palce à la poutre.
-    place <- FALSE
-    
-    if ()
-  }
   
+  # Fonction de placement de troncons.
+  place <- function(longueur, k) {
+    
+    if (k == 0) {
+      return()
+    }
+    
+    # placer les n3 (commencer par les troncons les plus grands)
+    for (i in 1:k){
+      
+      # Variable pour trouver une place à la poutre.
+      placed <- FALSE
+      
+      # Iteration sur les poutres disponibles
+      for (j in 1:n) {
+        if (longueur <= poutres[j]) {  
+          poutres[j] <<- poutres[j] - longueur
+          placed <- TRUE
+          break
+        }
+      } # Endfor
+      
+      # Si le troncon n'a pas pu être placé, creer une nouvelle poutre
+      if (!placed) {
+        poutres <<- c(poutres, 3 - longueur)
+        n <<- n + 1
+      }
+      
+    } # endfor
+    
+  } # End function
   
+  # Application de la fonction pour chacun des troncons en commencant par les plus gros.
+  place(2, n3)
+  place(1.5, n2)
+  place(0.5, n1)
+  
+  # Retourner le nombre de poutres et imprimer le reste de chute.
+  print(paste("Longueur des chutes: ", sum(poutres)))
+  return(n)
 }
 
 
