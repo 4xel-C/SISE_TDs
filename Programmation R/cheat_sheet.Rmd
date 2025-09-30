@@ -1,0 +1,878 @@
+---
+title: "R CheatSheet"
+output: html_notebook
+---
+# Introduction
+This R notebook contains R classic commands.
+
+# Keyboard shortcuts
+- ctrl + alt + i: Create a new chunk of code.
+- ctrl + l: clear the terminal.
+
+# File manipulation
+```{r}
+# get the documentation
+?file
+
+# get the cwd
+getwd()
+
+# Change working directory.
+setwd("path")
+
+# get the list of the files in the cwd (== DIR)
+list.files()
+dir()
+
+# create a directory or afile
+dir.create("hello")
+file.create("hello")
+
+# change wd to the folder hello, present in then cwd
+setwd("hello")
+
+# file creation and edition
+dir.create("hello.R")
+file.rename("hello.R", "Newname.R")
+file.remove("filename")
+
+# remove a folder with all the folders and files inside
+unlink("folderName", recursive = TRUE)
+
+# Clean all environmental variable.
+rm(list = ls())
+
+```
+
+# Vectors
+```{r}
+# Create a vector
+words <- c("It's", "a", "beautiful", "day")
+
+# Make a repetitions of a vector
+    # Repeat the vector 2 times 
+rep(words, times = 2)
+
+    # Repeat each element of the vector 2 times
+rep(words, each = 2)
+
+# Create a vector of number 1 to 10
+numbers <- c(1:10)
+number <- 1:10
+numbers
+```
+```{r}
+# vectors: array of same type objects
+# list: can collect together items of different data types
+
+# create a vector of names
+names <- c("Alice", "Bob", "Charlie")
+
+# create a vector of ages
+ages <- c(49, 19, 34)
+
+# List people
+people <- list(names, ages)
+
+# Accesssing the vector, or the 'element' of the list
+people[[2]] # vector, extracted form the list
+people[2] # Subset of the list element
+
+# names() function to assign scpecific names to the element in the list
+names(people) <- c("names", "ages")
+
+# accessing the vectors after naming the objects:
+people$names
+people$ages
+
+# creating dataframe from list:
+df <- data.frame(people)
+
+View(df)
+
+```
+```{r}
+# exemple creation of dataframes
+votes <- c(120, 130, 150, 85, 96, 34)
+matrix <- matrix(votes, nrow = 3, ncol = 2)
+df <- as.data.frame(matrix)
+colnames(df) <- c("poll", "mail")
+rownames(df) <- c("Mario", "Peach", "Bowser")
+
+# creation a total votes count for each candidate
+# Vectors can work as dictionnary
+
+total_votes <- c()
+for (candidate in rownames(df)) {
+    total_votes[candidate] <- sum(df[candidate, ])
+}
+
+test <- c("A", "B", "C", "D")
+test[1]  # donne "A"
+total_votes[1] # donne "Mario" 205 (value + name)
+
+
+# same code without naming the element of the vector
+# use c() concatenate the empty vector with each values into a merged vector
+    # c(205)
+    # then c(205, 226)
+    # then c(205, 226, 184)
+total_votes <- c()
+for (candidate in rownames(df)) {
+    total_votes <- c(total_votes, sum(df[candidate, ]))
+}
+
+#  same code with apply()
+# Margin = 1 apply the function FUN (sum) across the rows
+# Margin = 2 apply the function accros the columns
+# Will give a named vector
+test <- apply(df, MARGIN = 1, FUN = sum)
+
+```
+
+# Matrices
+```{r}
+# Creation of matrix
+
+# representation of the following matrix:
+#  [
+#     [60, 60, 65],
+#     [55, 60, 60],
+#     [50, 55, 60]
+#  ]
+
+# Matrix values number are numeroted as follow:
+#  [
+#     [1, 4, 7],
+#     [2, 5, 8],
+#     [3, 6, 9]
+#  ]
+# matrix[5] will give 5th element 5
+
+# creation of the vector storing all the temperatures
+temps <- c(60, 55, 50, 60, 60, 55, 65, 60, 60)
+
+# matrix creation from the vector: 
+#If nrow or ncol too short -> undersized
+# If too long, possibility of replications.
+weather <- matrix(
+    temps,
+    nrow = 3,
+    ncol = 3
+)
+
+View(weather)
+
+
+# accessing the first row and the first column of the matrix:
+weather[1, ]
+weather[, 1]
+
+# accessing the first row / first column
+weather[1, 1]
+
+# Accessing by linearization, starts by counting on columns first.
+weather[6]
+
+# 3 dimensions matrix (temperature evolving overtime)
+#  [
+#     [
+#         [60, 60, 65],
+#         [55, 60, 60],
+#         [50, 55, 60],
+#     ],
+#     [
+#         [55, 60, 65],
+#         [50, 55, 60],
+#         [50, 50, 55],
+#     ],
+#     [
+#         [55, 55, 55],
+#         [50, 55, 55],
+#         [50, 50, 55],
+#     ]
+#  ]
+
+# creation of the vector containing all the values:
+temps <- c(
+    60, 55, 50, 60, 60, 55, 65, 60, 60,
+    55, 50, 50, 60, 55, 50, 65, 60, 55,
+    55, 50, 50, 55, 55, 50, 55, 55, 55
+)
+
+temps
+
+# create the matrix using the array function
+# dim=c(row, col, matrix) specify the dimension of the array
+# and the value of each dimensions
+array <- array(temps, dim = c(3, 3, 3))
+
+array
+
+```
+
+## Master SISE powerpoint
+```{r}
+v <- c(1.2,2.3,4.1,2.5,1.4,2.7)
+m <- matrix(v,nrow=2,ncol=3)
+attributes(m)
+print(m)
+
+# Matrices can be indexed using booleans
+lig.b <- c(T,F)
+col.b <- c(T,F,T)
+print(m[lig.b,col.b])
+
+#ça veut dire qu'on peut aussi
+#utiliser des conditions
+#ex. (apply -> operations sur lignes (1) ou colonnes (2)).
+sum.col <- apply(m,2,sum)
+print(sum.col)
+
+
+# Récupère les colonnes dont la somme est < 5.
+m.prim <- m[,sum.col<5]
+print(m.prim)
+
+# Nomage des lignes et colonnes pour les récupérer en temps que dictionnaire.
+rownames(m) <- c("pierre","paul")
+colnames(m) <- c("x1", "x2", "x3")
+
+m["pierre", ]
+m[c("pierre", "paul"), ]
+
+
+# Possibilité de joindre des colonnes ou des lignes (cbind() ou rbind()) à une matrice.
+# extraction de la 3eme colonne
+z <- m[, 3]
+
+# adjonction de la colonne z à m
+cbind(m, z)
+
+# Les operations sur les matrices se font élément par élément.
+m * 2
+m + 3
+
+print(m)
+# Opérations matricielles:
+
+#transposée
+t(m)
+
+#determinant
+n <- m[, 0:2]
+det(n)
+
+# multiplication matricielle et inversion.
+n %*% solve(n)
+
+# opérations sur l'ensemble des matrices: 
+sum(m) # additionne tous les éléments.
+apply(m, 1, sum) # Applique la fonction "sum" sur la 1ere dimension (ligne).
+apply(m, 2, sum) # Applique la fonction "sum" sur la 2nd dimension (colonne).
+
+# Quand le résultat génère un vecteur (plusieurs valeurs, le vecteur généré est transposé (ou conservé) en colonne)
+# Profil de colonnes (La somme des colonnes sera égal à 1, normalization).
+profil <- function(x) {
+  return(x/sum(x))
+}
+
+normalized <- apply(m, 2, profil)
+
+apply(normalized, 2, sum)
+```
+
+
+# Dataframe
+```{r}
+# Create a data frame
+
+spacecraft <- data.frame(
+  # row.names = c("Voyager 1", "Voyager 2", "Pioneer 10")
+  #   => will swap the default index by this labels.
+  name = c("Voyager 1", "Voyager 2", "Pioneer 10"),
+  distance = c(163, 136, 80)
+)
+
+View(spacecraft)
+
+spacecraft$name
+spacecraft$distance
+
+# subset of datafram
+spacecraft[1]
+
+# This three lines below are equivalent and give a vector of the first column
+spacecraft[[1]]
+spacecraft[, 1]
+spacecraft$name
+
+# get access to the first row
+spacecraft[1, ]
+```
+```{r}
+# read data from csv(): specify the separator and the headers
+votes <-  read.table(
+  "vote.csv",
+  sep = ",",
+  header = TRUE
+)
+
+# Can also use the read.csv function to produce the same result
+votes <- read.csv("vote.csv")
+
+# View is a function to vizualise the data as a table
+View(votes)
+
+# Bracket notation to access specific row or column from Data Frame
+# by using the numbers
+votes[1,1]
+
+# Possibility to use the name of the column to access the name
+# Extracting a column return a 'vector' of values
+votes$candidate
+votes$candidate[1]  # extract the first candidate
+votes$poll
+
+# Sum of all the poll
+sum(votes$poll)
+
+# Vector addition
+votes$poll + votes$mail
+
+# The following notation return no vector: only a subdataframe from the main one
+votes[1] 
+votes[2]
+
+# Creating a new column:
+votes$total <- votes$poll + votes$mail
+View(votes)
+
+# access the column names or the row index
+colnames(votes)
+rownames(votes)
+
+# Write a csv: specify the df to write, name of the file, row index
+write.csv(votes, "totals.csv", row.names = FALSE)
+```
+## From url
+```{r}
+url <- "https://github.com/fivethirtyeight/data/raw/master/non-voters/nonvoters_data.csv"
+voters <- read.csv(url)
+View(voters)
+
+# Get the numbers of row and columns
+nrow(voters)
+ncol(voters)
+
+# get all uniques values in the vector
+unique(voters$voter_category)
+
+# Give the 10 first values of the column Q21
+head(voters$Q21, 10)
+
+# creating a factor (convert a vector into a factor
+factor(voters$Q21)
+
+# Possibility to in put a vector containing the label for each 'level'
+# (unique value) of the column and filter out some values.
+head(factor(
+    voters$Q21,
+    labels = c("Yes", "No", "Unsure/Undecided"),
+    exclude = c(-1)
+), 1000)
+```
+## Filtering data frames
+```{r}
+# Open the data frame
+df = read.csv("chicks.csv")
+View(df)
+# Open the data frame
+df = read.csv("chicks.csv")
+View(df)
+
+# mean of the weigth ignoring the NA values
+mean(df$weight, na.rm = TRUE)
+
+# Get the 10 first lines
+df[c(1:10), ]
+head(df, 10)
+
+# Get only the line corresponding to casein feed
+df[df$feed == "casein", ]
+
+# get the unique values of the feed column
+unique(df$feed)
+
+# prepare the filters
+filter_casein <- df$feed == "casein"
+filter_linseed <- df$feed == "linseed"
+
+# applying filters
+df[filter_linseed,]
+
+# get the rows were weight is NA
+na_filter = is.na(df$weight)
+df[na_filter,]
+
+# Count how many NA rows in the df
+sum(is.na(df$weight))
+
+# get the rows that contains no NA from weigth column
+df <- df[!na_filter, ]
+df <- subset(df, !na_filter)
+
+# Subset fucntion can be used to pass a filter, or to apply a
+# logical expression using a vector on a column.
+df <- subset(df, !na_filter)
+soybean_chicks <- subset(df, feed == "soybean")
+
+# setting up the index (rownames)
+rownames(df) # missing values from the deleted row containing NA.
+
+# delete all the row name and R will reset the index count.
+rownames(df) <- NULL
+
+is.na(df)
+
+```
+```{r}
+# load temporary data
+load("temps.RData")
+View(temps)
+
+# get the mean
+mean(temps)
+
+# get the outliers from their index
+temps[c(2, 4, 7)]
+
+# remove the outliers from the original vertor using their index
+temps[-c(2, 4, 7)]
+
+# which function will give the index corresponding to the logical expression
+which(temps < 0)
+which(temps < 0 | temps > 60)
+
+# any and all also possible
+any(temps < 0 | temps > 60)
+all(temps < 0 | temps > 60)
+
+# Give the boolean mask:
+temps < 0 | temps > 60
+
+# Get the temperature validating the logical expression
+temps[which(temps < 0 | temps > 60)]
+
+# filtering values
+outliers_filter <- temps < 0 | temps > 60
+
+# get the outliers
+outliers <- temps[outliers_filter]
+
+# get the values not beeing outliers
+no_outliers <- temps[!outliers_filter]
+
+# Save the vectors created into a RData file
+save(outliers, file = "outliers.Rdata")
+save(no_outliers, file = "no_outliers.Rdata")
+
+```
+```{r}
+# Reads 4 separate CSVs and add the quarter specification column
+
+Q1 <- read.csv("Q1.csv")
+Q1$quarter <-  "Q1"
+
+Q2 <- read.csv("Q2.csv")
+Q2$quarter <-  "Q2"
+
+Q3 <- read.csv("Q3.csv")
+Q3$quarter <-  "Q3"
+
+Q4 <- read.csv("Q4.csv")
+Q4$quarter <-  "Q4"
+
+# add new row to the dataframes Q1 (columns must be the same)
+# In other words: concatenate all the dfs
+df = rbind(Q1, Q2, Q3, Q4)
+
+View(df)
+
+df[df$quarter == "Q2", ]
+
+subset(df, df$sale_amount > 100)
+
+# Tag the sells > 100 with "High Value". Ifelse will
+# create a vector contaiing either regular or high value
+# depending of the the value in the corresponding row of the 
+# column sale_amount.
+ifelse(df$sale_amount > 100, "High Value", "regular")
+
+df$value <- ifelse(df$sale_amount > 100, "High Value", "regular")
+
+View(df)
+
+```
+
+# Generate random data
+```{r}
+# Code used to generate sales data
+
+# Define quarters
+quarters <- c("Q1", "Q2", "Q3", "Q4")
+
+for (quarter in quarters) {
+  # Generate random number of sales (number of rows)
+  rows <- sample.int(500, size = 1, replace = FALSE) + 2500
+  
+# Generate data
+
+  # create a vector of size "rows" containing for each 
+  # value an integer between 999 and 9999
+  customer_ids <- sample.int(9000, size = rows, replace = TRUE) + 999
+
+  # Create rows values following a normal disribution
+  # and if the value is < 1, keep it to 1
+  sale_amounts <- round(rnorm(rows, mean = 50, sd = 25))
+  sale_amounts <- ifelse(sale_amounts < 1, 1, sale_amounts)
+
+  # Create data frame
+  sales <- data.frame(
+    customer_id = customer_ids,
+    sale_amount = sale_amounts
+  )
+
+  # Write to CSV
+  write.csv(sales, paste0(quarter, ".csv"), row.names = FALSE)
+}
+
+
+```
+
+# User prompting
+```{r}
+# Implements same functionality with `menu`
+
+# Read and clean data
+chicks <- read.csv("chicks.csv")
+chicks <- subset(chicks, !is.na(weight))
+
+# Prompt user for input
+feed_options <- unique(chicks$feed)
+feed_choice <- menu(
+  feed_options,
+  title = "Feed type:"
+)
+
+# Show subset
+selected_feed = feed_options[feed_choice]
+print(subset(chicks, feed == selected_feed))
+```
+# Functions
+```{r}
+# creating a 'get_votes' function
+
+# Prompt the user to enter an Int representing votes. Return the number entered.
+# return(votes) is optionnal as R return the last computed value in the function
+
+
+get_votes <- function(prompt = "Enter votes: ") {
+
+  # If as.integer cannot convert to integer, it returns na value
+  # suppressWarnings used to get rid of the warning message in the console
+  votes <- suppressWarnings(as.integer(readline(prompt)))
+
+  # if (is.na(votes)) {
+  #   return(0)
+  # }
+
+  # return(votes)
+
+  ifelse(is.na(votes), 0, votes) # This will return the computed value
+}
+
+mario <- get_votes()
+peach <- get_votes()
+bowser <- get_votes()
+
+total <- sum(mario, peach, bowser)
+
+cat("Total votes", total)
+```
+
+# Loops
+```{r}
+
+# while and repeat
+  # repeat: No entry conditions.
+  # Good to use when you want to run the code at least 1 time
+  # While: Entry conditions evaluated before each loops
+  # For: apply on each element of a vector
+
+# Repeat loop
+i <- 3
+
+repeat {
+  cat("Test\n")
+  i <- i-1
+
+  if (i == 0) {
+    break()
+  } else {
+    next
+  }
+}
+
+# While loope
+i <- 3
+while (i != 0) {
+  cat("test2\n") 
+  i <- i - 1
+}
+
+# for loops
+# i:3 is equivalent to c(1, 2, 3)
+for (i in 1:3) {
+  cat("Test3")
+}
+```
+# Tidyverse functinnalities
+```{r}
+# install dplyr if not already installed
+install.packages("tidyverse")
+
+# load the library
+library("tidyverse")
+
+# Some datasets are integrated into R, like storms
+# tibble => sort of table with additional informations
+storms
+
+# funtion select to extract or delete the desired columns from the dataset
+# exclamation point to remove some columns
+# ends_with() allow to select any words ending with the specified string
+# Filter allows to filter the data set by specifying a condition on a column name
+dplyr::filter(
+    dplyr::select(
+        storms,
+        !c(lat, long, pressure, ends_with("diameter")),
+    ), 
+    status == "hurricane"
+)
+
+# If a function is unique and only coming from 1 package in the script, we can write:
+filter(
+    select(
+        storms,
+        !c(lat, long, pressure, ends_with("diameter")),
+    ), 
+    status == "hurricane"
+)
+
+# To avoid nesting multiple functions into functions for a better readability,
+# Possibility to chain the return values of a function into another function
+# "pipe operator" |> (most common)   %>% (equivalent)
+hurricanes <- storms |>   # load storm
+    select(!c(lat, long, pressure, ends_with("diameter")),) |>  # select from storm the desired columns.
+    filter(status == "hurricane") |>  # filter the resulting dataframe.
+    arrange(desc(wind), name) |> # sorting function
+    distinct(name, year, .keep_all = TRUE)  # distinct delete duplicates considering complete row, or on specified columns
+
+# If columns specified in distinct: other columns will be filtered out from the tibble.
+# .keep_all is used to keep the other columns even if they are not used for the distinct function.
+
+# table output: 
+# <fct> type: factor (discretes values = levels or categories)
+
+hurricanes |>
+    select(c(year, name, wind)) |>
+    write.csv("hurricanes.csv", row.names = FALSE)
+
+
+# Get the strongest hurricanes from each year using group_by function
+hurricanes <- read.csv("hurricanes.csv")
+
+
+# -----------------------------------------------------------------------------------------------------------Group By 
+
+# Strategy: group by year, sort each group by wind power, get the first element of each group
+hurricanes |>
+    group_by(year) |>
+    arrange(desc(wind)) |>
+    slice_head()
+
+# -slice_head() get the first element of the groups
+# -slice_tail()
+# -slice_max(column) pick the maximum in a specific column
+# -slice_min(column)
+
+# The tibble still considered as "grouped", if we want to extract from the groups, use "ungroup"
+hurricanes |>
+    group_by(year) |>
+    slice_max(order_by = wind) |>
+    filter(year >= 1980 & year <= 1990) |>
+    ungroup()
+
+
+# summarize give 1 row per group (specify the aggregation)
+# n() return the number of rows in a group
+hurricanes |>
+    group_by(year) |>
+    summarize(hurricanes = n())  # possibility to name the count column
+
+```
+
+```{r}
+# Read CSV
+# Use read_csv() method to directly load a tibble from the tidyverse library
+students <- read.csv("students.csv")
+View(students)
+
+# data not "tidy": unpivoted
+students <- pivot_wider(
+    students,
+    id_cols = student,
+    names_from = attribute,
+    values_from = value
+)
+
+# convert GPA columns as numeric
+students$GPA <- as.numeric(students$GPA)
+
+#  group by major
+students |>
+    group_by(major) |>
+    summarize(GPA = mean(GPA))
+
+```
+```{r}
+# Tally votes for favorite shows
+
+shows <- read.csv("shows.csv")
+
+# str_trim supress the whitespace on the front or the back of the string
+shows$show <- str_trim(shows$show) |>
+  str_trim() |>
+
+  # delete excess of whitespaces inside the string
+  str_squish() |>
+
+  # uppercase the first charcter of the string and lower the rest
+  str_to_tittle()
+
+# str_to_upper()  => capitalize each character of the string
+
+
+# Get a true or false if a string contains the word "Avatar"
+str_detect(shows$show, "Avatar")
+
+shows$show[str_detect(shows$show, "Avatar")] <- "Avatar: The Last Airbender"
+
+shows |>
+  group_by(show) |>
+  summarize(votes = n()) |>
+  ungroup() |>
+  arrange(desc(votes))
+```
+
+# Plotting
+```{r}
+# Time series data
+# Visualize with geom_point
+
+
+load("anita.RData")
+
+anita$color <- ifelse(anita$wind > 65, "red", "green") 
+
+ggplot(anita, aes(x = timestamp, y = wind)) +
+  geom_line(
+    linetype = 2,
+    linewidth = 1
+  ) +  # The order of the geom call influence if the layer is on front or in the back of another one
+  geom_point(
+    aes(color = color),  # Add a color depending of the category color of the data points
+    show.legend = FALSE, # Hide the corresponding legend
+    size = 4
+  ) +
+  scale_color_identity() +  # Change the scale "color" to match the color in the dataframe
+  geom_hline( # Add an horizontal line layer
+    linetype = 1,
+    yintercept = 65   # interception of the y axis
+  ) +  
+  labs(
+    x = "Date",
+    y = "Wind Speed (Knots)",
+    title = "Hurricane Anita"
+  ) + 
+  theme_classic()
+
+anita
+```
+```{r}
+# Introduce geom_point
+
+load("candy.RData")
+
+# jittering: allow the points to be on a slightly off position to avoid overlaying
+
+ggplot(
+  candy,
+  aes(x = price_percentile, y = sugar_percentile)
+) +
+  geom_jitter(
+    color = "darkorchid",
+    fill = "green",
+    shape = 21,
+    size = 5,
+  ) +
+  labs(
+    x = "Price",
+    y = "Sugar",
+    title = "Price and Sugar"
+  ) +
+  theme_classic()
+
+candy
+```
+```{r}
+# Create a blank visualization
+
+votes <- read.csv("votes.csv")
+
+votes
+
+# Draw the graph
+    # ggplot => create the blank plot
+    # aes (for aesthetic) use to change the aesthetic and map the columns to the axis
+    # Scales: 
+        # continuous: have limits
+        # discretes (categorical)
+plot <- ggplot(votes, aes(x = candidate, y = votes)) +
+    geom_col(
+        aes(fill = candidate),
+        show.legend = FALSE  # Hide the legend of color's columns
+        ) +  # define the type of visualization (columns)
+    scale_fill_viridis_d() +  # modify the scale fill to other color
+    scale_y_continuous(limits = c(0, 250)) +  # limit vector: c(start, ends)
+    labs(   # Labelization of the graph
+        x = "Candidate",
+        y = "Votes",
+        title = "Election Results"
+    ) + 
+    theme_classic()  # define the theme (global aestitics), by convention at the end
+
+# saving the plot as a file
+ggsave(
+    "votes.png",
+    plot = plot,
+    width = 1200,
+    height = 900,
+    units = "px"
+)
+
+```
+
+
+
