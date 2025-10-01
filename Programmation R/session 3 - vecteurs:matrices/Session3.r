@@ -240,7 +240,7 @@ x <- c(185,159,170,168,190,167,160,179,176,155)
 y <- as.factor(c("h","f","f","h","f","f","f","h","h","f"))
 
 test_anova_tapply <- function(x, y){
-  if (!is.factor(y) | (length(unique(y))) < 2) {
+  if (!is.factor(y) || (length(unique(y))) < 2) {
     return(NULL)
   }
   
@@ -302,15 +302,184 @@ mann_whitney <- function(a, b) {
   
   rank_global <- rank(c(A, B))
   
-  S1 <- sum(rank_global[names(rank_global) == "A"])
-  S2 <- sum(rank_global[names(rank_global) == "B"])
+  U <- sum(rank_global[names(rank_global) == "A"])
+
   
-  # Calcul des statistiques U1 et U2
-  U1 <- S1 - (n1*(n1 + 1))/2
-  U2 <- S2 - (n2*(n2 + 1))/2
+  # Calculer la moyenne de la statistique.
+  E <- (n1 * (n1 + n2 + 1)) / 2
   
-  U <- min(U1, U2)
+  # Calcul de la variance de la statistique.
+  V <- (n1 * n2 * (n1 + n2 + 1)) / 12
   
+  # Calcul de la statistique centrée réduite.
+  Z <- (U - E) / sqrt(V)
   
+  # Calcul de la pvalue correspondante.
+  pvalue <- pnorm(abs(Z), lower.tail = FALSE) * 2
+  
+  return(list(stat = U, z = Z, pvalue = pvalue))
 }
 
+# ------------------------ Exercice 10
+x <- c(185,159,170,168,190,167,160,179,176,155)
+y <- as.factor(c("h", "f", "f", "h", "f", "f", "f" , "h" , "h", "f"))
+
+kwallis <- function(x, y) {
+  
+  if (!is.factor(y) | length(x) != length(y)) {
+    return(NULL)
+  }
+  
+  # Calcul des fréquences.
+  n <- length(x)
+  
+  # Vecteur de fréquences conditionnelles.
+  nk <- tapply(x, y, length)
+  # Nombre de groupes.
+  k <- length(nk)
+  
+  # rangs des données
+  ranks <- rank(x)
+  
+  # Somme conditionnelles des rangs.
+  sum.condi <- tapply(ranks, y, sum)
+  
+  # Calcul de la statistique H
+  ## Calcul des Sk**2 / nk
+  H <- sum(sum.condi**2 / nk)
+  H <- H* 12/(n*(n + 1)) - (3*(n+1))
+  
+  # Calcul du degré de liberté.
+  ddl <- k-1
+  
+  # Calcul de la pvalue
+  pvalue <- pchisq(H, ddl, lower.tail = FALSE)
+  
+  return(list(H = H, ddl=ddl, pvalue = pvalue))
+}
+
+# ------------------------ Exercice 11
+test_vdw <- function(x, y) {
+  if (!is.factor(y) || length(x) != length(y) || nlevels(y) < 2) {
+    print("Bad format used for the parmeters!")
+    return(NULL)
+  }
+  
+  # Calcul des fréquences totales et conditionnelles
+  n <- length(x)
+  nk <- tapply(x, y, length)
+
+  # Transformation en rang.
+  ranks <- rank(x, ties.method="average")
+  
+  # Calcul du vecteurs des si
+  si <- qnorm(ranks/(n + 1))
+  
+  # Moyenne des si
+  sbar <- mean(si)
+  
+  # variances des si$
+  T2 <- var(si)
+  
+  # Calcul des sommes Si conditionnelles.
+  sk <- tapply(si, y, sum)
+  
+  # Calcul des sk0 (esperance de somme des scores sous hypothèse d'indépendace).
+  sk0 <- nk * sbar
+  
+  # Calcul de la statistique en sommant les scores du premier groupe.
+  C <- sum((1/nk) * (sk - sk0)**2) / T2
+
+  # Calcul des degrès de libertés
+  ddl <- nlevels(y) - 1
+  
+  # Calcul de la pvalue.
+  pvalue <- pchisq(C, ddl, lower.tail = FALSE)
+  
+  return(list(statistic = C, ddl=ddl, pvalue = pvalue))
+}
+
+
+# ------------------------ Exercice 12
+
+my_levene <- function(x, y) {
+  
+  if (is.factor(y) == FALSE || nlevels(y) < 2){
+    return (NA)
+  }
+  
+  # Calcul des moyennes conditionnelles
+  xk <- tapply(x, y, mean)
+  
+  # Soustraire à chaque x sa moyenne conditionnelle en utilisant la réplication.
+  z <- x - xk[y]
+  
+  # effectuer l'Anova sur les valeurs de z.
+  return(test_anova_tapply(z, y))
+}
+
+# ------------------------ Exercice 13
+combat_naval <- function() {
+  
+  # génération de la matrice 7*7.
+  board <- rep(c("."), times=7*7)
+  board <- matrix(board, nrow = 7, ncol = 7)
+  
+  # Selection d'une position aléatoire du bateau de l'ordinateur.
+  rowtarget <- sample(1:7, 1)
+  coltarget <- sample(1:7, 1)
+  
+  # Verifier si le joueur a gagné ou non.
+  win <- FALSE
+  
+  print(board)
+  
+  # Boucle de jeu
+  for (i in 1:7) {
+    
+    print("Coordonnée ligne:")
+    row <- scan()
+    
+    print("Coordonnée colonne:")
+    col <- scan()
+    
+    # Verifier si touché.
+    if (row == rowtarget && col == coltarget) {
+      win <- TRUE
+      break
+    }
+    
+    # Actualiser la case pour la marquer touchée.
+    board[row, col] <- "X"
+    
+    # Sinon calculer la position du bateau par apport au tir.
+    # Laisser volontairement une chaine vide si loupé.
+    posx <- ""
+    posy <- ""
+    
+    if (row < rowtarget) {
+      posy <- " sud"
+    } else if (row > rowtarget) {
+      posy <- " nord"
+    }
+    
+    if (col < coltarget) {
+      posx <- " est"
+    } else if (col > coltarget) {
+      posx <- " ouest"
+    }
+    
+    print("PLOUF, loupé!")
+    
+    print(board)
+    
+    print(paste0("Essayer", posy, posx, "."))
+    print("==> Play again!")
+  }
+  
+  if (win) {
+    print("Bravo, vous avez gagné!!")
+  } else {
+    print("Vous avez épuisé toutes vos chances, perdu!!")
+  }
+}
