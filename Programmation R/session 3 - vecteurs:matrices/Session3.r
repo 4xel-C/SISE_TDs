@@ -34,7 +34,12 @@ comp.moyenne <- function(v1, v2) {
 }
 
 
+
 # ------------------------ Exercice 2
+x <- c(185,159,170,168,190,167,160,179,176,155)
+y <- as.factor (c("h", "f", "f", "h", "f", "f", "f", "h", "h", "f"))
+
+
 test_student <- function(x, y) {
   if (!is.factor(y) | !length(unique(y))) {
     stop("y n'est pas un factor ou ne contient pas le bon n ombre de facteurs")
@@ -73,6 +78,21 @@ test_student <- function(x, y) {
   # Renvoyer une liste
   return(list(t = t, p.value = p.value, ddl = ddl))
 }
+
+
+test_student_vectors_manipulations <- function(x, y) {
+  
+  if (!is.factor(y) | !length(unique(y))) {
+    stop("y n'est pas un factor ou ne contient pas le bon nombre de facteurs")
+  }
+  
+  # Scinder les valeurs en deux groupes.
+  x_hommes <- x[y == "h"]
+  x_femmes <- x[y == "f"]
+  
+  return(comp.moyenne(x_hommes, x_femmes))
+}
+
 
 # ------------------------ Exercice 3
 comp_moyenne_pairwise <- function(v1, v2) {
@@ -263,3 +283,34 @@ test_anova_tapply <- function(x, y){
   
   return(list("F"=f, ddl1 = K-1, ddl2 = n - K, pvalue = pvalue))
 }
+
+# ------------------------ Exercice 9
+A <- c(185,168,179,176)
+B <- c(159,170,190,167,160,155)
+
+
+mann_whitney <- function(a, b) {
+  
+  # Calcul des fréquences absolues.
+  n1 <- length(A)
+  n2 <- length(B)
+  n <- n1 + n2
+  
+  # Calcul des sommes des rangs
+  names(A) <- rep("A", times = length(A))
+  names(B) <- rep("B", times = length(B))
+  
+  rank_global <- rank(c(A, B))
+  
+  S1 <- sum(rank_global[names(rank_global) == "A"])
+  S2 <- sum(rank_global[names(rank_global) == "B"])
+  
+  # Calcul des statistiques U1 et U2
+  U1 <- S1 - (n1*(n1 + 1))/2
+  U2 <- S2 - (n2*(n2 + 1))/2
+  
+  U <- min(U1, U2)
+  
+  
+}
+
